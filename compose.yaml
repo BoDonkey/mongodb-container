@@ -7,6 +7,8 @@ services:
     volumes:
       - mongodb_data:/data/db
     restart: unless-stopped
+    command: ["--bind_ip_all"] # Ensures MongoDB is accessible in WSL
 
 volumes:
   mongodb_data:
+    name: mongodb_data  # Forces consistent naming to prevent namespace issues
