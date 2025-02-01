@@ -13,8 +13,8 @@ Make sure you have **Docker or Podman** installed:
 
 ### **2️⃣ Clone This Repository**
 ```sh
-git clone https://github.com/YOUR-ORG/apostrophecms-mongodb-dev.git
-cd apostrophecms-mongodb-dev
+git clone https://github.com/BoDonkey/mongodb-container
+cd mongodb-container
 ```
 
 ### **3️⃣ Start MongoDB**
@@ -31,10 +31,68 @@ MongoDB will be available at:
 mongodb://localhost:27017
 ```
 
+### **🛑 Stopping and Resetting MongoDB**
+Once MongoDB is running, you may need to **stop** it or **reset the database** during development.
+
+---
+
 ### **4️⃣ Stop MongoDB**
-To stop MongoDB, run:
+If you need to stop the MongoDB container **without deleting data**, run:
 ```sh
-docker-compose down  # or podman-compose down
+./scripts/stop.sh
+```
+This will:
+- 🛑 **Stop the running MongoDB container**.
+- ✅ Ensure MongoDB is **fully shut down** before exiting.
+- ⚠️ **Does not delete stored data**, so restarting will resume from the last state.
+
+To restart MongoDB after stopping it, run:
+```sh
+./scripts/start.sh
+```
+
+---
+
+### **5️⃣ Reset the Database (⚠️ Deletes All Data)**
+If you need a **fresh database** (e.g., to clear test data), run:
+```sh
+./scripts/reset-data.sh
+```
+This will:
+- 🛑 **Stop MongoDB** (if running).
+- ❌ **Delete all stored data** (including all databases and collections).
+- 🔄 **Restart MongoDB with a clean slate**.
+
+🚨 **Warning:** This action **cannot be undone**. If you reset the database, **all data will be permanently erased**.
+
+---
+
+### **🎯 When to Use Each Command**
+| Command                 | Effect                                           | Data Kept? | When to Use |
+|-------------------------|------------------------------------------------|------------|-------------|
+| `./scripts/stop.sh`     | Stops MongoDB **without deleting data**        | ✅ Yes      | Temporarily stop the database |
+| `./scripts/start.sh`    | Starts MongoDB (resumes from last state)       | ✅ Yes      | Restart MongoDB after stopping |
+| `./scripts/reset-data.sh` | Deletes **all data** and restarts MongoDB      | ❌ No       | Start fresh with an empty database |
+
+---
+
+### **Need Help?**
+To check if MongoDB is running, use:
+```sh
+docker ps | grep apostrophe-mongodb
+```
+or for Podman:
+```sh
+podman ps | grep apostrophe-mongodb
+```
+
+To view MongoDB logs:
+```sh
+docker logs apostrophe-mongodb
+```
+or
+```sh
+podman logs apostrophe-mongodb
 ```
 
 ---
@@ -42,12 +100,23 @@ docker-compose down  # or podman-compose down
 ## **📂 What’s Inside?**
 ### **🔧 `docker-compose.yml`**
 - Runs **MongoDB 6.0** in a container.
-- Stores data in a **persistent volume** (`mongodb_data`).
-- Uses `--bind_ip_all` to ensure **access from WSL/macOS/Linux**.
+- Stores data in a **persistent volume** (`mongodb_data`) to ensure data persists between restarts.
+- Uses `--bind_ip_all` to ensure **access from WSL2, macOS, and Linux**.
 
-### **⚡ `start-mongo.sh`**
+### **⚡ `./scripts/start.sh`**
 - Detects **Docker or Podman** and starts MongoDB.
+- ✅ Ensures MongoDB is running before exiting.
 - **For WSL2 users**, sets up **automatic port forwarding** to allow access from Windows applications.
+
+### **🛑 `./scripts/stop.sh`**
+- Stops the running MongoDB container **without deleting any data**.
+- ✅ Ensures MongoDB is fully shut down.
+- 💾 Data is preserved, allowing a restart with `./scripts/start.sh`.
+
+### **⚠️ `./scripts/reset-data.sh`**
+- Stops the MongoDB container.
+- ❌ **Deletes all stored data** (resets the database).
+- 🔄 Restarts MongoDB with a clean slate.
 
 ---
 
@@ -88,29 +157,7 @@ If `27017` is missing, **rerun the startup script**.
 
 ---
 
-## **🔄 Removing MongoDB**
-If you want to **fully remove MongoDB and its data**, run:
-```sh
-docker-compose down -v
-docker volume rm mongodb_data
-```
-or for Podman:
-```sh
-podman-compose down -v
-podman volume rm mongodb_data
-```
-
----
-
 ### **🌟 Contribute**
 Feel free to submit issues or PRs to improve this setup! 🚀
 
 ---
-
-## **Final Thoughts**
-This README provides:
-✅ **A simple, fast start**.  
-✅ **Platform-specific instructions** for WSL2, macOS, and Linux.  
-✅ **Troubleshooting steps** to help developers debug common issues.
-
-Would you like any refinements? 🚀
