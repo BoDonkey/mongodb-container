@@ -1,0 +1,9 @@
+# MongoDB data
+mongodb_data/
+
+# Environment variables
+.env
+
+# OS specific
+.DS_Store
+Thumbs.db
